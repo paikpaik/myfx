@@ -10,31 +10,42 @@ const log = console.log;
 // [ add ] 두개의 인자를 더해주는 함수
 const add = (a, b) => a + b;
 
+// [ mult ] 두개의 인자를 곱해주는 함수
+const mult = (a, b) => a * b;
+
+// [ curry ] 함수와 인자를 받아서 함수를 리턴하고 인자가 원하는 갯수가 되었을때
+//           받아둔 함수를 평가시키는 함수
+// 1. 표현력이 좋아짐.
+const curry =
+  (f) =>
+  (a, ..._) =>
+    _.length ? f(a, ..._) : (..._) => f(a, ..._);
+
 // [ map ] 특정 조건에 맵핑되는 정보들을 나열하는 함수
 // 1. 다형성을 가짐. Array를 상속받은 객체 뿐만 아니라 iterable protocol을
-//      따르는 모든 객체, generator 함수도 맵핑이 가능
-const map = (f, iter) => {
+//    따르는 모든 객체, generator 함수도 맵핑이 가능
+const map = curry((f, iter) => {
   let res = [];
   for (const a of iter) {
     res.push(f(a));
   }
   return res;
-};
+});
 
 // [ filter ] 특정 조건에 필터되는 정보들만 모아주는 함수
 // 1. 다형성을 가짐. map과 동일
-const filter = (f, iter) => {
+const filter = curry((f, iter) => {
   let res = [];
   for (const a of iter) {
     if (f(a)) res.push(a);
   }
   return res;
-};
+});
 
 // [ reduce ] 특정 조건이 계속해서 누적 적용되는 함수
 // 1. 다형성을 가짐.
 // 2. 초기값(acc)이 없어도 iter의 첫번째 값을 가져와서 적용
-const reduce = (f, acc, iter) => {
+const reduce = curry((f, acc, iter) => {
   if (!iter) {
     iter = acc[Symbol.iterator]();
     acc = iter.next().value;
@@ -43,7 +54,19 @@ const reduce = (f, acc, iter) => {
     acc = f(acc, a);
   }
   return acc;
-};
+});
+
+// [ go ] 코드를 값으로 다루어 연속적으로 실행되게 하는 함수
+// 1. 표현력과 가독성이 좋아짐.
+// 2. 응용해서 평가 순서를 결정할 수 있음.
+const go = (...args) => reduce((a, f) => f(a), args);
+
+// [ pipe ] 함수를 받아서 함수를 리턴하는 함수
+// 1. 동일한 일을 하는 함수들을 묶어서 편하게 하나의 함수로 만들수 있음.
+const pipe =
+  (f, ...fs) =>
+  (...as) =>
+    go(f(...as), ...fs);
 
 /* 
   ##########################################################################
@@ -62,4 +85,4 @@ const reduce = (f, acc, iter) => {
   ########################          export          ########################
   ##########################################################################
 */
-export { log, add, map, filter, reduce };
+export { log, add, map, filter, reduce, go, mult, curry, pipe };

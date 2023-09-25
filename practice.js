@@ -1,4 +1,4 @@
-import { log, map, filter, reduce, add } from "./fx.js";
+import { log, map, filter, reduce, add, go, pipe } from "./fx.js";
 import { products } from "./data.js";
 
 // #######################################################################
@@ -41,3 +41,56 @@ import { products } from "./data.js";
 // log(reduce((total_price, product) => total_price + product.price, 0, products));
 
 // #######################################################################
+
+// // go, curry를 이용한 표현력 비교
+// go(
+//   products,
+//   (products) => filter((p) => p.price < 20000, products),
+//   (products) => map((p) => p.price, products),
+//   (prices) => reduce(add, prices),
+//   log
+// );
+
+// go(
+//   products,
+//   filter((p) => p.price < 20000),
+//   map((p) => p.price),
+//   reduce(add),
+//   log
+// );
+
+// #######################################################################
+
+// pipe를 이용한 함수 조합
+const total_price = pipe(
+  map((p) => p.price),
+  reduce(add)
+);
+
+const base_total_price = (predicate) => pipe(filter(predicate), total_price);
+
+go(
+  products,
+  filter((p) => p.price < 20000),
+  total_price,
+  log
+);
+
+go(
+  products,
+  base_total_price((p) => p.price < 20000),
+  log
+);
+
+go(
+  products,
+  filter((p) => p.price >= 20000),
+  total_price,
+  log
+);
+
+go(
+  products,
+  base_total_price((p) => p.price >= 20000),
+  log
+);
