@@ -10,8 +10,17 @@ const log = console.log;
 // [ add ] 두개의 인자를 더해주는 함수
 const add = (a, b) => a + b;
 
+// [ sub ] a에서 b를 빼주는 함수
+const sub = (a, b) => a - b;
+
 // [ mult ] 두개의 인자를 곱해주는 함수
 const mult = (a, b) => a * b;
+
+// [ div ] 두개의 인자를 나눠주는 함수, 몫을 리턴
+const div = (a, b) => a / b;
+
+// [ left ] 두개의 인자를 나눠주는 함수, 나머지를 리턴
+const left = (a, b) => a % b;
 
 // [ curry ] 함수와 인자를 받아서 함수를 리턴하고 인자가 원하는 갯수가 되었을때
 //           받아둔 함수를 평가시키는 함수
@@ -85,4 +94,4 @@ const pipe =
   ########################          export          ########################
   ##########################################################################
 */
-export { log, add, map, filter, reduce, go, mult, curry, pipe };
+export { log, add, sub, map, div, left, filter, reduce, go, mult, curry, pipe };
