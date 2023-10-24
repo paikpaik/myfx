@@ -140,6 +140,7 @@ import { products } from "./data.js";
 
 // #######################################################################
 
+console.time("");
 go(
   range(10),
   map((n) => n + 10),
@@ -147,7 +148,8 @@ go(
   take(2),
   log
 );
-
+console.timeEnd("");
+console.time("");
 go(
   L.range(10),
   L.map((n) => n + 10),
@@ -155,3 +157,4 @@ go(
   take(2),
   log
 );
+console.timeEnd("");
