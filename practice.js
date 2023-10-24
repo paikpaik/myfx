@@ -9,6 +9,9 @@ import {
   sub,
   div,
   left,
+  range,
+  test,
+  L,
 } from "./fx.js";
 import { products } from "./data.js";
 
@@ -105,3 +108,20 @@ import { products } from "./data.js";
 //   base_total_price((p) => p.price >= 20000),
 //   log
 // );
+
+// #######################################################################
+
+// go(
+//   products,
+//   map((p) => p.quantity),
+//   reduce((a, b) => a + b),
+//   log
+// );
+
+// #######################################################################
+
+// range와 L.range 성능 비교
+test("range", 10, () => reduce(add, range(1000000)));
+test("L.range", 10, () => reduce(add, L.range(1000000)));
+// range: 608.311ms
+// L.range: 437.586ms
