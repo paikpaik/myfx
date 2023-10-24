@@ -14,8 +14,17 @@ import {
   L,
   take,
   join,
+  Lmap,
+  queryStr,
+  LqueryStr,
+  Lflatten,
+  LdeepFlat,
+  LflatMap,
+  Lfilter,
+  find,
+  takeAll,
 } from "./fx.js";
-import { products } from "./data.js";
+import { products, usersFamily } from "./data.js";
 
 // #######################################################################
 
@@ -162,6 +171,106 @@ import { products } from "./data.js";
 
 // #######################################################################
 
-// log(L.queryStr({ limit: 10, offset: 10, type: "notice" }));
-const obj = { limit: 10, offset: 10, type: "notice" };
-log(L.queryStr(obj));
+// const obj = { limit: 10, offset: 10, type: "notice" };
+// log(queryStr(obj));
+// log(LqueryStr(obj));
+
+// #######################################################################
+
+// const users = [
+//   { age: 32 },
+//   { age: 31 },
+//   { age: 37 },
+//   { age: 28 },
+//   { age: 25 },
+//   { age: 32 },
+//   { age: 31 },
+//   { age: 37 },
+// ];
+
+// log(find((u) => u.age < 30)(users));
+
+// go(
+//   users,
+//   L.map((u) => u.age),
+//   L.find((n) => n < 30),
+//   log
+// );
+
+// #######################################################################
+
+// log(Lmap((a) => a + 10, L.range(4)));
+
+// #######################################################################
+
+// const arr = [[1, 2], 3, 4, [5, 6], [7, 8, 9]];
+// log(...L.flatten(arr));
+// log(take(3, L.flatten(arr)));
+// log(Lflatten(arr));
+
+// const deepArr = [1, [2, [3, 4], [[5]]]];
+// log([...L.deepFlat(deepArr)]);
+// log(take(3, L.deepFlat(deepArr)));
+// log(LdeepFlat(deepArr));
+
+// #######################################################################
+
+// const arr = [[1, 2], 3, 4, [5, 6], [7, 8, 9]];
+// log(...L.flatMap((a) => a, arr));
+// log(LflatMap((a) => a, arr));
+
+// #######################################################################
+
+// const arr = [
+//   [1, 2],
+//   [3, 4, 5],
+//   [6, 7, 8],
+//   [9, 10],
+// ];
+// console.time("");
+// go(
+//   arr,
+//   Lflatten,
+//   Lfilter((a) => a % 2),
+//   Lmap((a) => a * a),
+//   take(4),
+//   reduce(add),
+//   log
+// );
+// console.timeEnd("");
+// console.time("");
+// go(
+//   arr,
+//   L.flatten,
+//   L.filter((a) => a % 2),
+//   L.map((a) => a * a),
+//   take(4),
+//   reduce(add),
+//   log
+// );
+// console.timeEnd("");
+
+// #######################################################################
+
+console.time("non");
+go(
+  usersFamily,
+  LflatMap((u) => u.family),
+  Lfilter((u) => u.age < 20),
+  Lmap((u) => u.age),
+  take(3),
+  reduce(add),
+  log
+);
+console.timeEnd("non");
+// console.time("Lazy");
+// go(
+//   usersFamily,
+//   L.flatMap((u) => u.family),
+//   L.filter((u) => u.age < 20),
+//   L.map((u) => u.age),
+//   take(3),
+//   reduce(add),
+//   log
+// );
+// console.timeEnd("Lazy");

@@ -121,12 +121,27 @@ const take = curry((l, iter) => {
   }
   return res;
 });
+const takeAll = take(Infinity);
+
+// [ find ] 원하는 이터러블의 첫번째 값을 리턴하는 함수
+const find = curry((f, iter) => go(iter, filter(f), take(1), ([a]) => a));
 
 // [ join ] 이터러블을 축약하거나 해당 seperator로 결합하는 함수
 // 1. 배열이 아니어도 가능
 const join = curry((sep = ",", iter) =>
   reduce((a, b) => `${a}${sep}${b}`, iter)
 );
+
+// [ queryStr ] 객체를 queryString으로 변환하는 함수
+// 1. { limit: 10, offset: 10 } => limit=10&offset=10
+const queryStr = pipe(
+  Object.entries,
+  map(([k, v]) => `${k}=${v}`),
+  join("&")
+);
+
+// [ isIterable ] 이터러블인지 판단하는 함수
+const isIterable = (a) => a && a[Symbol.iterator];
 
 /* 
   ##########################################################################
@@ -173,14 +188,57 @@ L.entries = function* (obj) {
   for (const k in obj) yield [k, obj[k]];
 };
 
-// [ L.queryStr ] 지연성을 가지고 객체를 queryString으로 변환하는 함수
+// [ L.flatten ] 지연성을 가지고 여러 객체를 전부 펼치는 함수
+L.flatten = function* (iter) {
+  for (const a of iter) {
+    if (isIterable(a)) yield* a;
+    else yield a;
+  }
+};
+
+// [ L.deepFlat ] 지연성을 가지고 깊은 뎁스의 여러 배열을 전부 펼치는 함수
+L.deepFlat = function* f(iter) {
+  for (const a of iter) {
+    if (isIterable(a)) yield* f(a);
+    else yield a;
+  }
+};
+
+// [ L.flatMap ] 지연성을 가지고 flat과 map을 동시에 하는 함수
+L.flatMap = curry(pipe(L.map, L.flatten));
+
+/* 
+  ##########################################################################
+  ########################     Lazy(지연성) Fx를    ########################
+  ########################     활용한 함수 축약      ########################
+  ##########################################################################
+*/
+
+// [ LqueryStr ] 지연성을 가지고 객체를 queryString으로 변환하는 함수
 // 1. { limit: 10, offset: 10 } => limit=10&offset=10
-L.queryStr = pipe(
+const LqueryStr = pipe(
   L.entries,
   L.map(([k, v]) => `${k}=${v}`),
   join("&")
 );
 
+// [ Lfind ] 지연성을 가지고 원하는 이터러블의 첫번째 값을 리턴하는 함수
+const Lfind = curry((f, iter) => go(iter, L.filter(f), take(1), ([a]) => a));
+
+// [ Lmap ] 지연성을 가지는 L.map을 활용한 map (지연성은 없음.)
+const Lmap = curry(pipe(L.map, takeAll));
+
+// [ Lfilter ] 지연성을 가지는 L.filter를 활용한 filter (지연성은 없음.)
+const Lfilter = curry(pipe(L.filter, takeAll));
+
+// [ Lflatten ] 지연성을 가지고 여러 배열을 즉시 펼치는 함수 (지연성은 없음.)
+const Lflatten = pipe(L.flatten, takeAll);
+
+// [ LdeepFlat ] 지연성을 가지고 깊은 뎁스의 여러 배열을 즉시 펼치는 함수 (지연성은 없음.)
+const LdeepFlat = pipe(L.deepFlat, takeAll);
+
+// [ LflatMap ] 지연성을 가지고 flat과 map을 동시에 하는 함수 (지연성은 없음.)
+const LflatMap = curry(pipe(L.flatMap, takeAll));
 /* 
   ##########################################################################
   ########################      Concurrency Fx      ########################
@@ -210,4 +268,15 @@ export {
   L,
   join,
   take,
+  find,
+  queryStr,
+  LqueryStr,
+  Lfind,
+  Lmap,
+  Lfilter,
+  takeAll,
+  isIterable,
+  Lflatten,
+  LdeepFlat,
+  LflatMap,
 };
