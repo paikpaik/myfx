@@ -35,7 +35,10 @@ const curry =
 //    따르는 모든 객체, generator 함수도 맵핑이 가능
 const map = curry((f, iter) => {
   let res = [];
-  for (const a of iter) {
+  iter = iter[Symbol.iterator]();
+  let cur;
+  while (!(cur = iter.next()).done) {
+    const a = cur.value;
     res.push(f(a));
   }
   return res;
@@ -45,7 +48,10 @@ const map = curry((f, iter) => {
 // 1. 다형성을 가짐. map과 동일
 const filter = curry((f, iter) => {
   let res = [];
-  for (const a of iter) {
+  iter = iter[Symbol.iterator]();
+  let cur;
+  while (!(cur = iter.next()).done) {
+    const a = cur.value;
     if (f(a)) res.push(a);
   }
   return res;
@@ -58,8 +64,12 @@ const reduce = curry((f, acc, iter) => {
   if (!iter) {
     iter = acc[Symbol.iterator]();
     acc = iter.next().value;
+  } else {
+    iter = iter[Symbol.iterator]();
   }
-  for (const a of iter) {
+  let cur;
+  while (!(cur = iter.next()).done) {
+    const a = cur.value;
     acc = f(acc, a);
   }
   return acc;
@@ -100,7 +110,10 @@ const test = (name, time, f) => {
 // 1. 원하는 만큼만 배열을 자를 수 있음.
 const take = curry((l, iter) => {
   let res = [];
-  for (const a of iter) {
+  iter = iter[Symbol.iterator]();
+  let cur;
+  while (!(cur = iter.next()).done) {
+    const a = cur.value;
     res.push(a);
     if (res.length == l) return res;
   }
@@ -128,18 +141,24 @@ L.range = function* (l) {
 };
 
 // [ L.map ] 지연성을 가지는 map
-L.map = function* (f, iter) {
-  for (const a of iter) {
+L.map = curry(function* (f, iter) {
+  iter = iter[Symbol.iterator]();
+  let cur;
+  while (!(cur = iter.next()).done) {
+    const a = cur.value;
     yield f(a);
   }
-};
+});
 
 // [ L.filter ] 지연성을 가지는 filter
-L.filter = function* (f, iter) {
-  for (const a of iter) {
+L.filter = curry(function* (f, iter) {
+  iter = iter[Symbol.iterator]();
+  let cur;
+  while (!(cur = iter.next()).done) {
+    const a = cur.value;
     if (f(a)) yield a;
   }
-};
+});
 
 /* 
   ##########################################################################

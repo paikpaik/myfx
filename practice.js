@@ -129,11 +129,29 @@ import { products } from "./data.js";
 
 // #######################################################################
 
-// take
-log(take(5, range(100)));
-console.time("");
-go(range(10000), take(5), reduce(add), log);
-console.timeEnd("");
-console.time("");
-go(L.range(10000), take(5), reduce(add), log);
-console.timeEnd("");
+// // take
+// log(take(5, range(100)));
+// console.time("");
+// go(range(10000), take(5), reduce(add), log);
+// console.timeEnd("");
+// console.time("");
+// go(L.range(10000), take(5), reduce(add), log);
+// console.timeEnd("");
+
+// #######################################################################
+
+go(
+  range(10),
+  map((n) => n + 10),
+  filter((n) => n % 2),
+  take(2),
+  log
+);
+
+go(
+  L.range(10),
+  L.map((n) => n + 10),
+  L.filter((n) => n % 2),
+  take(2),
+  log
+);
