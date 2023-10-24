@@ -78,6 +78,7 @@ const pipe =
     go(f(...as), ...fs);
 
 // [ range ] 숫자를 받아서 0부터 1씩 증가하는 배열을 리턴하는 함수
+// 1. 숫자를 간단하게 배열로 펼칠수 있음.
 const range = (l) => {
   let i = -1;
   let res = [];
@@ -88,10 +89,22 @@ const range = (l) => {
 };
 
 // [ test ] 함수의 이름, 시간, test할 함수를 받아서 순회 시간을 리턴하는 함수
+// 1. 간단하고 구별되게 함수들의 성능을 비교해볼 수 있음.
 const test = (name, time, f) => {
   console.time(name);
   while (time--) f();
   console.timeEnd(name);
+};
+
+// [ take ] 숫자와 이터러블을 받아서 숫자만큼 배열을 0 부터 잘라주는 함수
+// 1. 원하는 만큼만 배열을 자를 수 있음.
+const take = (l, iter) => {
+  let res = [];
+  for (const a of iter) {
+    res.push(a);
+    if (res.length == l) return res;
+  }
+  return res;
 };
 
 /* 
@@ -141,4 +154,5 @@ export {
   range,
   test,
   L,
+  take,
 };

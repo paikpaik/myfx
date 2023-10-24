@@ -12,6 +12,7 @@ import {
   range,
   test,
   L,
+  take,
 } from "./fx.js";
 import { products } from "./data.js";
 
@@ -120,8 +121,13 @@ import { products } from "./data.js";
 
 // #######################################################################
 
-// range와 L.range 성능 비교
-test("range", 10, () => reduce(add, range(1000000)));
-test("L.range", 10, () => reduce(add, L.range(1000000)));
-// range: 608.311ms
-// L.range: 437.586ms
+// // range와 L.range 성능 비교
+// test("range", 10, () => reduce(add, range(1000000)));
+// test("L.range", 10, () => reduce(add, L.range(1000000)));
+// // range: 608.311ms
+// // L.range: 437.586ms
+
+// #######################################################################
+
+// take
+log(take(5, range(100)));
