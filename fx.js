@@ -98,14 +98,14 @@ const test = (name, time, f) => {
 
 // [ take ] 숫자와 이터러블을 받아서 숫자만큼 배열을 0 부터 잘라주는 함수
 // 1. 원하는 만큼만 배열을 자를 수 있음.
-const take = (l, iter) => {
+const take = curry((l, iter) => {
   let res = [];
   for (const a of iter) {
     res.push(a);
     if (res.length == l) return res;
   }
   return res;
-};
+});
 
 /* 
   ##########################################################################

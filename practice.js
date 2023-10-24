@@ -131,3 +131,9 @@ import { products } from "./data.js";
 
 // take
 log(take(5, range(100)));
+console.time("");
+go(range(10000), take(5), reduce(add), log);
+console.timeEnd("");
+console.time("");
+go(L.range(10000), take(5), reduce(add), log);
+console.timeEnd("");
