@@ -133,6 +133,14 @@ L.map = function* (f, iter) {
     yield f(a);
   }
 };
+
+// [ L.filter ] 지연성을 가지는 filter
+L.filter = function* (f, iter) {
+  for (const a of iter) {
+    if (f(a)) yield a;
+  }
+};
+
 /* 
   ##########################################################################
   ########################      Concurrency Fx      ########################
