@@ -13,6 +13,7 @@ import {
   test,
   L,
   take,
+  join,
 } from "./fx.js";
 import { products } from "./data.js";
 
@@ -140,21 +141,27 @@ import { products } from "./data.js";
 
 // #######################################################################
 
-console.time("");
-go(
-  range(10),
-  map((n) => n + 10),
-  filter((n) => n % 2),
-  take(2),
-  log
-);
-console.timeEnd("");
-console.time("");
-go(
-  L.range(10),
-  L.map((n) => n + 10),
-  L.filter((n) => n % 2),
-  take(2),
-  log
-);
-console.timeEnd("");
+// console.time("");
+// go(
+//   range(10),
+//   map((n) => n + 10),
+//   filter((n) => n % 2),
+//   take(2),
+//   log
+// );
+// console.timeEnd("");
+// console.time("");
+// go(
+//   L.range(10),
+//   L.map((n) => n + 10),
+//   L.filter((n) => n % 2),
+//   take(2),
+//   log
+// );
+// console.timeEnd("");
+
+// #######################################################################
+
+// log(L.queryStr({ limit: 10, offset: 10, type: "notice" }));
+const obj = { limit: 10, offset: 10, type: "notice" };
+log(L.queryStr(obj));
