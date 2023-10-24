@@ -119,7 +119,7 @@ const take = curry((l, iter) => {
 //    순회를 하는 것(전체를 절대 다 순회하지 않음)
 const L = {};
 
-// [ L.range ]
+// [ L.range ] 지연성을 가지는 range
 L.range = function* (l) {
   let i = -1;
   while (++i < l) {
@@ -127,6 +127,12 @@ L.range = function* (l) {
   }
 };
 
+// [ L.map ] 지연성을 가지는 map
+L.map = function* (f, iter) {
+  for (const a of iter) {
+    yield f(a);
+  }
+};
 /* 
   ##########################################################################
   ########################      Concurrency Fx      ########################
