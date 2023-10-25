@@ -23,6 +23,7 @@ import {
   Lfilter,
   find,
   takeAll,
+  Lfind,
 } from "./fx.js";
 import { products, usersFamily } from "./data.js";
 
@@ -193,7 +194,7 @@ import { products, usersFamily } from "./data.js";
 // go(
 //   users,
 //   L.map((u) => u.age),
-//   L.find((n) => n < 30),
+//   Lfind((n) => n < 30),
 //   log
 // );
 
@@ -252,25 +253,155 @@ import { products, usersFamily } from "./data.js";
 
 // #######################################################################
 
-console.time("non");
-go(
-  usersFamily,
-  LflatMap((u) => u.family),
-  Lfilter((u) => u.age < 20),
-  Lmap((u) => u.age),
-  take(3),
-  reduce(add),
-  log
-);
-console.timeEnd("non");
-// console.time("Lazy");
+// console.time("non");
 // go(
 //   usersFamily,
-//   L.flatMap((u) => u.family),
-//   L.filter((u) => u.age < 20),
-//   L.map((u) => u.age),
+//   LflatMap((u) => u.family),
+//   Lfilter((u) => u.age < 20),
+//   Lmap((u) => u.age),
 //   take(3),
 //   reduce(add),
 //   log
 // );
-// console.timeEnd("Lazy");
+// console.timeEnd("non");
+// // console.time("Lazy");
+// // go(
+// //   usersFamily,
+// //   L.flatMap((u) => u.family),
+// //   L.filter((u) => u.age < 20),
+// //   L.map((u) => u.age),
+// //   take(3),
+// //   reduce(add),
+// //   log
+// // );
+// // console.timeEnd("Lazy");
+
+// #######################################################################
+
+// // callback 방식
+// const add1delay100 = (a, cb) => {
+//   setTimeout(() => cb(a + 1), 100);
+// };
+// add1delay100(5, (res) => {
+//   add1delay100(res, (res) => {
+//     add1delay100(res, (res) => {
+//       add1delay100(res, (res) => {
+//         add1delay100(res, (res) => {
+//           add1delay100(res, (res) => {
+//             add1delay100(res, (res) => {
+//               log(res);
+//             });
+//           });
+//         });
+//       });
+//     });
+//   });
+// });
+
+// // Promise 방식
+// const add2delay100 = (a) => {
+//   return new Promise((resolve) => setTimeout(() => resolve(a + 2), 100));
+// };
+// add2delay100(5)
+//   .then(add2delay100)
+//   .then(add2delay100)
+//   .then(add2delay100)
+//   .then(add2delay100)
+//   .then(add2delay100)
+//   .then(add2delay100)
+//   .then(log);
+
+// #######################################################################
+
+// const g = (a) => a + 1;
+// const f = (a) => a * a;
+
+// log(f(g(1)));
+// log(f(g()));
+
+// // 모나드
+// [1]
+//   .map(g)
+//   .map(f)
+//   .forEach((r) => log(r));
+
+// []
+//   .map(g)
+//   .map(f)
+//   .forEach((r) => log(r));
+
+// Promise.resolve(2)
+//   .then(g)
+//   .then(f)
+//   .then((r) => log(r));
+// new Promise((resolve) => setTimeout(() => resolve(2), 100))
+//   .then(g)
+//   .then(f)
+//   .then((r) => log(r));
+
+// #######################################################################
+
+// const posts = [
+//   { id: 1, title: "test1" },
+//   { id: 2, title: "test2" },
+//   { id: 3, title: "test3" },
+// ];
+
+// const getPostById = (id) =>
+//   find((p) => p.id == id, posts) || Promise.reject("delete됨");
+
+// const a = ({ title }) => title;
+// const b = getPostById;
+
+// const ab = (id) =>
+//   Promise.resolve(id)
+//     .then(b)
+//     .then(a)
+//     .catch((e) => e);
+
+// posts.pop();
+// posts.pop();
+
+// ab(2).then(log);
+
+// #######################################################################
+
+// go(
+//   Promise.resolve(1),
+//   (a) => a + 10,
+//   (a) => Promise.resolve(a + 100),
+//   (a) => a + 1000,
+//   (a) => a + 10000,
+//   log
+// );
+
+// #######################################################################
+
+// go(
+//   [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)],
+//   L.map((a) => Promise.resolve(a + 10)),
+//   take(2),
+//   log
+// );
+
+// #######################################################################
+
+go(
+  [1, 2, 3, 4, 5, 6, 7],
+  L.filter((a) => Promise.resolve(a % 2)),
+  L.map((a) => a * a),
+  take(4),
+  log
+);
+
+// #######################################################################
+
+// #######################################################################
+
+// #######################################################################
+
+// #######################################################################
+
+// #######################################################################
+
+// #######################################################################

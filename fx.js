@@ -6,6 +6,12 @@
 // 공통된 특징 :
 //    1. 이터러블 : 이터러블을 인자로 받는다는 뜻은 지연성을 가질수 있다는 의미
 
+// [ go1 ] reduce의 Promise확장을 위한 함수
+const go1 = (a, f) => (a instanceof Promise ? a.then(f) : f(a));
+
+// [ nop ] Kleisli Composition을 따르기 위한 구분자
+const nop = Symbol("nop");
+
 // [ log ] 로그를 찍는 함수
 const log = console.log;
 
@@ -62,6 +68,7 @@ const filter = curry((f, iter) => {
 // [ reduce ] 특정 조건이 계속해서 누적 적용되는 함수
 // 1. 다형성을 가짐.
 // 2. 초기값(acc)이 없어도 iter의 첫번째 값을 가져와서 적용
+// 3. Promise 값도 다룰수 있고 초기값이 Promise여도 잘 적용됨.
 const reduce = curry((f, acc, iter) => {
   if (!iter) {
     iter = acc[Symbol.iterator]();
@@ -69,12 +76,15 @@ const reduce = curry((f, acc, iter) => {
   } else {
     iter = iter[Symbol.iterator]();
   }
-  let cur;
-  while (!(cur = iter.next()).done) {
-    const a = cur.value;
-    acc = f(acc, a);
-  }
-  return acc;
+  return go1(acc, function recur(acc) {
+    let cur;
+    while (!(cur = iter.next()).done) {
+      const a = cur.value;
+      acc = f(acc, a);
+      if (acc instanceof Promise) return acc.then(recur);
+    }
+    return acc;
+  });
 });
 
 // [ go ] 코드를 값으로 다루어 연속적으로 실행되게 하는 함수
@@ -113,13 +123,19 @@ const test = (name, time, f) => {
 const take = curry((l, iter) => {
   let res = [];
   iter = iter[Symbol.iterator]();
-  let cur;
-  while (!(cur = iter.next()).done) {
-    const a = cur.value;
-    res.push(a);
-    if (res.length == l) return res;
-  }
-  return res;
+  return (function recur() {
+    let cur;
+    while (!(cur = iter.next()).done) {
+      const a = cur.value;
+      if (a instanceof Promise)
+        return a
+          .then((a) => ((res.push(a), res).length == l ? res : recur()))
+          .catch((e) => (e == nop ? recur() : Promise.reject(e)));
+      res.push(a);
+      if (res.length == l) return res;
+    }
+    return res;
+  })();
 });
 const takeAll = take(Infinity);
 
@@ -164,12 +180,13 @@ L.range = function* (l) {
 };
 
 // [ L.map ] 지연성을 가지는 map
+// Promise 확장
 L.map = curry(function* (f, iter) {
   iter = iter[Symbol.iterator]();
   let cur;
   while (!(cur = iter.next()).done) {
     const a = cur.value;
-    yield f(a);
+    yield go1(a, f);
   }
 });
 
@@ -179,7 +196,10 @@ L.filter = curry(function* (f, iter) {
   let cur;
   while (!(cur = iter.next()).done) {
     const a = cur.value;
-    if (f(a)) yield a;
+    const b = go1(a, f);
+    if (b instanceof Promise)
+      yield b.then((b) => (b ? a : Promise.reject(nop)));
+    else if (b) yield a;
   }
 });
 
@@ -279,4 +299,5 @@ export {
   Lflatten,
   LdeepFlat,
   LflatMap,
+  go1,
 };
