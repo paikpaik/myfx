@@ -69,19 +69,22 @@ const filter = curry((f, iter) => {
 // 1. 다형성을 가짐.
 // 2. 초기값(acc)이 없어도 iter의 첫번째 값을 가져와서 적용
 // 3. Promise 값도 다룰수 있고 초기값이 Promise여도 잘 적용됨.
+const reduceF = (acc, a, f) =>
+  a instanceof Promise
+    ? a.then(
+        (a) => f(acc, a),
+        (e) => (e == nop ? acc : Promise.reject(e))
+      )
+    : f(acc, a);
+const head = (iter) => go1(take(1, iter), ([h]) => h);
 const reduce = curry((f, acc, iter) => {
-  if (!iter) {
-    iter = acc[Symbol.iterator]();
-    acc = iter.next().value;
-  } else {
-    iter = iter[Symbol.iterator]();
-  }
-  return go1(acc, function recur(acc) {
+  if (!iter) return reduce(f, head((iter = acc[Symbol.iterator]())), iter);
+  iter = iter[Symbol.iterator]();
+  return go1(acc, function recursive(acc) {
     let cur;
     while (!(cur = iter.next()).done) {
-      const a = cur.value;
-      acc = f(acc, a);
-      if (acc instanceof Promise) return acc.then(recur);
+      acc = reduceF(acc, cur.value, f);
+      if (acc instanceof Promise) return acc.then(recursive);
     }
     return acc;
   });
@@ -264,6 +267,33 @@ const LflatMap = curry(pipe(L.flatMap, takeAll));
   ########################      Concurrency Fx      ########################
   ##########################################################################
 */
+const C = {};
+
+// [noop, catchNoop] Concurrency(동시성) 함수를 처리하는 과정에서 catch를
+//                   다음 콜스텍으로 넘겨두기 위함 함수
+const noop = () => {};
+const catchNoop = (arr) => (
+  arr.forEach((a) => (a instanceof Promise ? a.catch(noop) : a)), arr
+);
+// 1. Concurrency(동시성) : 부하는 생길수 있지만 여러 비동기작업을 병렬적으로
+//        동시에 진행 하는 함수
+
+// [ C.reduce ] 동시성을 가지는 reduce(Promise, 지연성 다 가짐)
+C.reduce = curry((f, acc, iter) =>
+  iter ? reduce(f, acc, catchNoop([...iter])) : reduce(f, catchNoop([...acc]))
+);
+
+// [ C.take ] 동시성을 가지는 take(Promise, 지연성 다 가짐)
+C.take = curry((l, iter) => take(l, catchNoop([...iter])));
+
+// [ C.takeAll ] 동시성을 가지는 takeAll(Promise, 지연성 다 가짐)
+C.takeAll = C.take(Infinity);
+
+// [ C.map ] 동시성을 가지는 map(Promise, 지연성 다 가짐)
+C.map = curry(pipe(L.map, C.takeAll));
+
+// [ C.filter ] 동시성을 가지는 filter(Promise, 지연성 다 가짐)
+C.filter = curry(pipe(L.filter, C.takeAll));
 
 /* 
   ##########################################################################
@@ -300,4 +330,5 @@ export {
   LdeepFlat,
   LflatMap,
   go1,
+  C,
 };
