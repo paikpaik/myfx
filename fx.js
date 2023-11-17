@@ -254,13 +254,13 @@ const Lmap = curry(pipe(L.map, takeAll));
 // [ Lfilter ] 지연성을 가지는 L.filter를 활용한 filter (지연성은 없음.)
 const Lfilter = curry(pipe(L.filter, takeAll));
 
-// [ Lflatten ] 지연성을 가지고 여러 배열을 즉시 펼치는 함수 (지연성은 없음.)
+// [ Lflatten ] 여러 배열을 즉시 펼치는 함수 (지연성은 없음.)
 const Lflatten = pipe(L.flatten, takeAll);
 
-// [ LdeepFlat ] 지연성을 가지고 깊은 뎁스의 여러 배열을 즉시 펼치는 함수 (지연성은 없음.)
+// [ LdeepFlat ] 깊은 뎁스의 여러 배열을 즉시 펼치는 함수 (지연성은 없음.)
 const LdeepFlat = pipe(L.deepFlat, takeAll);
 
-// [ LflatMap ] 지연성을 가지고 flat과 map을 동시에 하는 함수 (지연성은 없음.)
+// [ LflatMap ] flat과 map을 동시에 하는 함수 (지연성은 없음.)
 const LflatMap = curry(pipe(L.flatMap, takeAll));
 /* 
   ##########################################################################
